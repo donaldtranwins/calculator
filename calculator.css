@@ -1,30 +1,71 @@
-.frame {
-    background-color: lightgrey;
+body {
+    margin: auto;
+    box-sizing: border-box;
+    font-size: 62.5%;
 }
-.display {
-    background-color: white;
+.frame {
+    position: relative;
+    background-color: pink;
+    padding: 1em;
+    font-family: "Digital7", Courier, sans-serif;
+    font-size: 3em;
+    box-shadow: .1em .1em deeppink;
+    margin-top: .3em;
+}
+.display > div {
+    background-color: aliceblue;
     padding: 1em;
     border: blue 1px solid;
+    font-weight: bold;
+    font-size: 1.4em;
 }
-.buttons .col-xs-push-2, .col-xs-offset-2 {
-    text-align: center;
-    /*font-size: 2em;*/
-    cursor: pointer;
+.output {
+    font-size: 1.2em;
+}
+.input {
+
+}
+.buttonrow {
+    margin-top: .3em;
+}
+#calcWithDivs .button > div,
+#calcWithOffsets .button {
+    font-size: 2em;
     color: #fff;
-    background-color: #4CAF50;
-    border: none;
-    border-radius: 1em;
-    box-sizing: border-box;
-    margin: .2em .1em;
-    box-shadow: 1px 5px #999;
+    background-color: lightblue;
+    border: 1px solid lightblue;
+    border-radius: .2em;
+    cursor: pointer;
     user-select: none;
+    box-shadow: .05em .1em #758f9c;
 }
-.number {
-    background-color: #1dc116;
+#calcWithDivs .button > div:hover,
+#calcWithOffsets .button:hover {
+    background-color: #9cc1ce;
+    transition-duration: 35ms;
 }
-.buttons div:hover {background-color: #3e8e41}
-.buttons div:active {
-    background-color: #3e8e41;
-    box-shadow: 1px 3px #090;
-    transform: translateY(6px);
+#calcWithDivs .button > div:active,
+#calcWithOffsets .button:active {
+    box-shadow: -.05em -.1em pink;
+    transform: translateX(.05em) translateY(.1em);
+}
+@font-face {
+    font-family: "Overwatch";
+    src: url("http://us.battle.net/forums/static/fonts/bignoodletoo/bignoodletoo.woff") format('woff');
+}
+@font-face {
+    font-family: "Digital7";
+    src: url("font/digital-7.ttf")
+}
+@font-face {
+    font-family: "Digital7 Italic";
+    src: url("font/digital-7 (italic).ttf")
+}
+@font-face {
+    font-family: "Digital7 Mono";
+    src: url("font/digital-7 (mono).ttf")
+}
+@font-face {
+    font-family: "Digital7 Mono Italic";
+    src: url("font/digital-7 (mono italic).ttf")
 }
