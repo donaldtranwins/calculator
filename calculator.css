@@ -1,0 +1,30 @@
+.frame {
+    background-color: lightgrey;
+}
+.display {
+    background-color: white;
+    padding: 1em;
+    border: blue 1px solid;
+}
+.buttons .col-xs-push-2, .col-xs-offset-2 {
+    text-align: center;
+    /*font-size: 2em;*/
+    cursor: pointer;
+    color: #fff;
+    background-color: #4CAF50;
+    border: none;
+    border-radius: 1em;
+    box-sizing: border-box;
+    margin: .2em .1em;
+    box-shadow: 1px 5px #999;
+    user-select: none;
+}
+.number {
+    background-color: #1dc116;
+}
+.buttons div:hover {background-color: #3e8e41}
+.buttons div:active {
+    background-color: #3e8e41;
+    box-shadow: 1px 3px #090;
+    transform: translateY(6px);
+}
