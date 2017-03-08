@@ -28,8 +28,7 @@ body {
 .buttonrow {
     margin-top: .3em;
 }
-#calcWithDivs .button > div,
-#calcWithOffsets .button {
+.button > div {
     font-size: 2em;
     color: #fff;
     background-color: lightblue;
@@ -39,16 +38,15 @@ body {
     user-select: none;
     box-shadow: .05em .1em #758f9c;
 }
-#calcWithDivs .button > div:hover,
-#calcWithOffsets .button:hover {
+.button > div:hover {
     background-color: #9cc1ce;
     transition-duration: 35ms;
 }
-#calcWithDivs .button > div:active,
-#calcWithOffsets .button:active {
+.button > div:active {
     box-shadow: -.05em -.1em pink;
     transform: translateX(.05em) translateY(.1em);
 }
+.number > div { background-color: lightskyblue }
 @font-face {
     font-family: "Overwatch";
     src: url("http://us.battle.net/forums/static/fonts/bignoodletoo/bignoodletoo.woff") format('woff');
