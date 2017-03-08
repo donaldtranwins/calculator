@@ -2,8 +2,10 @@ $(document).ready(function () {
     applyClickHandlers();
 });
 
-var inputArray = [];
+var currentInput = [];
+var savedInputs = [];
 var lastButton = null;
+var inputHistory = [];
 var currentButton = null;
 var answerArray = [];
 
@@ -15,6 +17,8 @@ function buttonPressed(){
     currentButton = $(this).text();
     switch(currentButton){
         case "AC":
+            clearAll(currentButton);
+            break;
         case "CE":
             clear(currentButton);
             break;
@@ -41,31 +45,62 @@ function buttonPressed(){
             break;
     }
 }
-
-function clear(){
+function clearAll(){
+    currentInput = [];
+    savedInputs = [];
+    log(currentInput);
 }
-function backspace(){
+function log(array, string){
+    if(!string) string = "length";
+    console.log(array, array.length - 1, string);
+}
+function clear(){
+    currentInput = [];
+    log(currentInput);
+}
+function backspace(backspc){
+    console.log(currentInput[currentInput.length-1]);
+    if(isNaOperator(currentInput[currentInput.length-1]))
+        currentInput.pop();
+    log(currentInput);
 }
 function changeSign(){
 }
-function calculate(equals){
-    inputArray.push("");
-    addToInputArray(equals);
-    concatInputTil(equals);
-    inputArray.pop();
-    console.log(inputArray, inputArray.length - 1);
-    var tempString = inputArray.join("");
-    var tempArray = tempString.split("");
-    var operator = tempArray.find(theOperator);
-    var answerString = tempArray.join("");
-    var twoNums = answerString.split(operator);
-    var answer = do_math(twoNums[0],twoNums[1],operator);
-    console.log(answer);
-    return answer;
+function calculate(equalSign){
+    if (!isNaOperator(lastButton)){
+        savedInputs.pop();
+    }
+    currentInput.push("");
+    addToInputArray(equalSign);
+    concatInputTil(equalSign);
+    log(currentInput, "current equals");
+    log(savedInputs, "savedInputs");
+
+    while(savedInputs.find(firstMDindex()) > -1){
+        var index = savedInputs.find(firstMDindex);
+        var answer = do_math(savedInputs.splice(index-1,3));
+        savedInputs.splice(1,0,answer);
+
+    }
+
+
+
+    var basicBitchWay = function() {
+        currentInput.pop();
+        var tempString = currentInput.join("");
+        var tempArray = tempString.split("");
+        var operatorsIndex = tempArray.find(anyOperatorIndex);
+        var answerString = tempArray.join("");
+        var twoNums = answerString.split(operatorsIndex);
+        var answer = do_math(twoNums[0], operatorsIndex, twoNums[1]);
+        console.log(answer);
+        return answer;
+    };
+    basicBitchWay()
 }
 function inputDecimal(decimal){
 }
-function compareOperatorTo(lastButton){
+function isNaOperator(lastButton){
     switch(lastButton){
         case "+":
         case "-":
@@ -77,46 +112,66 @@ function compareOperatorTo(lastButton){
     }
 }
 function inputNumber(number){
-    if (isNaN(inputArray[inputArray.length]))
-        inputArray.push("");
+    if (isNaN(currentInput[currentInput.length]))
+        currentInput.push("");
     addToInputArray(number);
     lastButton = number;
-    console.log(inputArray, inputArray.length-1);
+    log(currentInput);
 }
 function inputOperator(operator){
-    if (inputArray.length === 0)
+    if (currentInput.length === 0)
         return;
-    if (compareOperatorTo(lastButton)) { //add op, concat til op
+    if (isNaOperator(lastButton)) { //add op, concat til op
         console.log("first operator pressed");
-        inputArray.push("");
+        currentInput.push("");
         addToInputArray(operator);
         concatInputTil(operator);
     } else { //was an operator.  should replace last value
         console.log("operator already present.  replacing operators");
-        inputArray[inputArray.length-1] = operator;
+        currentInput[currentInput.length-1] = operator;
     }
     lastButton = operator;
-    console.log(inputArray, inputArray.length - 1);
+    log(currentInput, "currentInput");
+    log(savedInputs, "savedInputs");
 }
 function concatInput(){
-    var tempString = inputArray.join("");
+    var tempString = currentInput.join("");
 
 }
-function concatInputTil(index){
-    var opIndex = inputArray.lastIndexOf(index);
-    var tempNumbersAsArray = inputArray.splice(0,opIndex);
-    var tempNumbersAsString = tempNumbersAsArray.join("");
-    inputArray.unshift(tempNumbersAsString);
+function concatInputTil(operator){
+    var opIndex = currentInput.lastIndexOf(operator);
+    var tempNumbersAsString = currentInput.splice(0,opIndex).join("");
+    currentInput = [];
+    savedInputs.push(tempNumbersAsString,operator);
 }
 function addToInputArray(keyPressed){
-    inputArray[inputArray.length-1] += keyPressed;
-    return inputArray[inputArray.length-1];
+    currentInput[currentInput.length-1] += keyPressed;
+    return currentInput[currentInput.length-1];
 }
 function addToAnswerArray(removedValues){
     answerArray[answerArray.length-1] += removedValues;
     return answerArray[answerArray.length-1];
 }
-function do_math(num1, num2, operator){
+function do_math(num1, operator, num2){
+    if(Array.isArray(num1)){
+        var number1 = parseFloat(num1[0]);
+        var number2 = parseFloat(num1[2]);
+        switch(num1[1]){
+            case '+':
+                return number1 + number2;
+            case '-':
+                return number1 - number2;
+            case '/':
+                return number1 / number2;
+            case '*':
+            case 'x':
+            case 'X':
+                return number1 * number2;
+            default:
+                console.log(num1, "error: num1 is in this format");
+                return "Thank you.";
+        }
+    }
     num1 = parseFloat(num1);
     num2 = parseFloat(num2);
     switch(operator){
@@ -135,9 +190,25 @@ function do_math(num1, num2, operator){
             return "Thank you.";
     }
 }
-function firstOperator(){
-    inputArray.find(theOperator());
+function addToHistory(currentButt) {
+    inputHistory.push(currentButt);
+    return inputHistory[inputHistory.length - 1]
 }
-function theOperator(inputArrayIndex){
-    return ["+","-","*","/"].indexOf(inputArrayIndex) > -1;
+function setLastInputTo(button){
+    if (inputHistory.length > 0) {
+        lastButton = inputHistory[inputHistory.length - 1];
+    } else {
+        lastButton = currentButton;
+    }
+    console.log(lastButton);
+    return lastButton;
+}
+function firstMDindex(inArray){
+    return ["*","/"].indexOf(inArray) > -1;
+}
+function firstASindex(inArray){
+    return ["+","-"].indexOf(inArray) > -1;
+}
+function anyOperatorIndex(inArray){
+    return ["+","-","*","/"].indexOf(inArray) > -1;
 }
