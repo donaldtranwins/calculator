@@ -8,6 +8,8 @@ var lastButton = null;
 var inputHistory = [];
 var currentButton = null;
 var answerArray = [];
+var positive = true;
+
 
 function applyClickHandlers(){
     $('#calculator').on('click','.button',buttonPressed)
@@ -29,7 +31,7 @@ function buttonPressed(){
             calculate(currentButton);
             break;
         case "±":
-            changeSign(currentButton);
+            positive = changeBoolean(positive);
             break;
         case ".":
             inputDecimal(currentButton);
@@ -48,7 +50,8 @@ function buttonPressed(){
 function clearAll(){
     currentInput = [];
     savedInputs = [];
-    log(currentInput);
+    log(currentInput, "current input");
+    log(savedInputs, "saved input");
 }
 function log(array, string){
     if(!string) string = "length";
@@ -56,15 +59,13 @@ function log(array, string){
 }
 function clear(){
     currentInput = [];
-    log(currentInput);
+    log(currentInput, "current input");
 }
 function backspace(backspc){
     console.log(currentInput[currentInput.length-1]);
     if(isNaOperator(currentInput[currentInput.length-1]))
         currentInput.pop();
-    log(currentInput);
-}
-function changeSign(){
+    log(currentInput, "current input");
 }
 function calculate(equalSign){
     if (!isNaOperator(lastButton)){
@@ -76,27 +77,33 @@ function calculate(equalSign){
     log(currentInput, "current equals");
     log(savedInputs, "savedInputs");
 
-    while(savedInputs.find(firstMDindex()) > -1){
+    while(savedInputs.find(firstMDindex) != undefined){
         var index = savedInputs.find(firstMDindex);
         var answer = do_math(savedInputs.splice(index-1,3));
-        savedInputs.splice(1,0,answer);
-
+        savedInputs.splice(index-1,0,answer);
+        log(savedInputs,"savedInputs")
     }
+    while(savedInputs.length > 1){
+        var index = savedInputs.find(firstMDindex);
+        var answer = do_math(savedInputs.splice(index-1,3));
+        savedInputs.splice(index-1,0,answer);
+        log(savedInputs,"savedInputs")
+    }
+    console.log()
 
 
-
-    var basicBitchWay = function() {
-        currentInput.pop();
-        var tempString = currentInput.join("");
-        var tempArray = tempString.split("");
-        var operatorsIndex = tempArray.find(anyOperatorIndex);
-        var answerString = tempArray.join("");
-        var twoNums = answerString.split(operatorsIndex);
-        var answer = do_math(twoNums[0], operatorsIndex, twoNums[1]);
-        console.log(answer);
-        return answer;
-    };
-    basicBitchWay()
+    // var basicBitchWay = function() {
+    //     currentInput.pop();
+    //     var tempString = currentInput.join("");
+    //     var tempArray = tempString.split("");
+    //     var operatorsIndex = tempArray.find(anyOperatorIndex);
+    //     var answerString = tempArray.join("");
+    //     var twoNums = answerString.split(operatorsIndex);
+    //     var answer = do_math(twoNums[0], operatorsIndex, twoNums[1]);
+    //     console.log(answer);
+    //     return answer;
+    // };
+    // basicBitchWay();
 }
 function inputDecimal(decimal){
 }
@@ -211,4 +218,7 @@ function firstASindex(inArray){
 }
 function anyOperatorIndex(inArray){
     return ["+","-","*","/"].indexOf(inArray) > -1;
+}
+function changeBoolean(pos){
+    return pos = !pos;
 }
