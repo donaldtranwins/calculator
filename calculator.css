@@ -1,0 +1,69 @@
+body {
+    margin: auto;
+    box-sizing: border-box;
+    font-size: 62.5%;
+}
+.frame {
+    position: relative;
+    background-color: pink;
+    padding: 1em;
+    font-family: "Digital7", Courier, sans-serif;
+    font-size: 3em;
+    box-shadow: .1em .1em deeppink;
+    margin-top: .3em;
+}
+.display > div {
+    background-color: aliceblue;
+    padding: 1em;
+    border: blue 1px solid;
+    font-weight: bold;
+    font-size: 1.4em;
+}
+.output {
+    font-size: 1.2em;
+}
+.input {
+
+}
+.buttonrow {
+    margin-top: .3em;
+}
+.button > div {
+    font-size: 2em;
+    color: #fff;
+    background-color: lightblue;
+    border: 1px solid lightblue;
+    border-radius: .2em;
+    cursor: pointer;
+    user-select: none;
+    box-shadow: .05em .1em #758f9c;
+}
+.button > div:hover {
+    background-color: #9cc1ce;
+    transition-duration: 35ms;
+}
+.button > div:active {
+    box-shadow: -.05em -.1em pink;
+    transform: translateX(.05em) translateY(.1em);
+}
+.number > div { background-color: lightskyblue }
+@font-face {
+    font-family: "Overwatch";
+    src: url("http://us.battle.net/forums/static/fonts/bignoodletoo/bignoodletoo.woff") format('woff');
+}
+@font-face {
+    font-family: "Digital7";
+    src: url("font/digital-7.ttf")
+}
+@font-face {
+    font-family: "Digital7 Italic";
+    src: url("font/digital-7 (italic).ttf")
+}
+@font-face {
+    font-family: "Digital7 Mono";
+    src: url("font/digital-7 (mono).ttf")
+}
+@font-face {
+    font-family: "Digital7 Mono Italic";
+    src: url("font/digital-7 (mono italic).ttf")
+}
