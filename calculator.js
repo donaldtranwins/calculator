@@ -50,46 +50,44 @@ function buttonPressed(){
 function clearAll(){
     currentInput = [];
     savedInputs = [];
-    log(currentInput, "current input");
+    log(currentInput);
     log(savedInputs, "saved input");
 }
 function log(array, string){
-    if(!string) string = "length";
+    if(!string) string = "current";
     console.log(array, array.length - 1, string);
 }
 function clear(){
     currentInput = [];
-    log(currentInput, "current input");
+    log(currentInput);
 }
 function backspace(backspc){
     console.log(currentInput[currentInput.length-1]);
     if(isNaOperator(currentInput[currentInput.length-1]))
         currentInput.pop();
-    log(currentInput, "current input");
+    log(currentInput);
 }
 function calculate(equalSign){
-    if (!isNaOperator(lastButton)){
-        savedInputs.pop();
-    }
     currentInput.push("");
     addToInputArray(equalSign);
     concatInputTil(equalSign);
-    log(currentInput, "current equals");
+    log(currentInput);
     log(savedInputs, "savedInputs");
 
     while(savedInputs.find(firstMDindex) != undefined){
-        var index = savedInputs.find(firstMDindex);
+        var indexOfMD = savedInputs.find(firstMDindex);
+        var intermediateMD = do_math(savedInputs.splice(indexOfMD-1,3));
+        savedInputs.splice(indexOfMD-1,0,intermediateMD);
+        log(savedInputs,"savedInputs")
+    }
+    while(!isNaN(savedInputs[2])){
+        var index = savedInputs.find(firstASindex);
         var answer = do_math(savedInputs.splice(index-1,3));
         savedInputs.splice(index-1,0,answer);
         log(savedInputs,"savedInputs")
     }
-    while(savedInputs.length > 1){
-        var index = savedInputs.find(firstMDindex);
-        var answer = do_math(savedInputs.splice(index-1,3));
-        savedInputs.splice(index-1,0,answer);
-        log(savedInputs,"savedInputs")
-    }
-    console.log()
+    log(currentInput);
+    log(savedInputs, "saved");
 
 
     // var basicBitchWay = function() {
@@ -119,6 +117,8 @@ function isNaOperator(lastButton){
     }
 }
 function inputNumber(number){
+    if (currentInput[currentInput.length-1] === "=")
+        currentInput = [];
     if (isNaN(currentInput[currentInput.length]))
         currentInput.push("");
     addToInputArray(number);
@@ -138,7 +138,7 @@ function inputOperator(operator){
         currentInput[currentInput.length-1] = operator;
     }
     lastButton = operator;
-    log(currentInput, "currentInput");
+    log(currentInput);
     log(savedInputs, "savedInputs");
 }
 function concatInput(){
@@ -174,6 +174,9 @@ function do_math(num1, operator, num2){
             case 'x':
             case 'X':
                 return number1 * number2;
+            case '=':
+                console.log("woah an equals. figure logic later");
+                break;
             default:
                 console.log(num1, "error: num1 is in this format");
                 return "Thank you.";
@@ -192,6 +195,9 @@ function do_math(num1, operator, num2){
         case 'x':
         case 'X':
             return num1 * num2;
+        case '=':
+            console.log("woah an equals. figure logic later");
+            break;
         default:
             console.log("Please specify: (a number, a number, an operator).");
             return "Thank you.";
