@@ -5,9 +5,7 @@ $(document).ready(function () {
 var currentInput = [];
 var savedInputs = [];
 var lastButton = null;
-var inputHistory = [];
 var currentButton = null;
-var answerArray = [];
 var positive = true;
 
 
@@ -20,15 +18,18 @@ function buttonPressed(){
     switch(currentButton){
         case "AC":
             clearAll(currentButton);
-            break;
+            display("#output","0");
         case "CE":
             clear(currentButton);
+            display("#input","0");
             break;
         case "←":
             backspace(currentButton);
             break;
         case "=":
             calculate(currentButton);
+            display("#output","output");
+            display("#input","input");
             break;
         case "±":
             positive = changeBoolean(positive);
@@ -41,25 +42,43 @@ function buttonPressed(){
         case "*":
         case "/":
             inputOperator(currentButton);
+            display("#output","output");
             break;
         default:
             inputNumber(currentButton);
+            display("#input","input");
             break;
     }
 }
-function clearAll(){
-    currentInput = [];
-    savedInputs = [];
-    log(currentInput);
-    log(savedInputs, "saved input");
+function display(target, text){
+    var show = $(target);
+    switch(text){
+        case "input":
+            var string = currentInput.join("");
+            break;
+        case "output":
+            string = savedInputs.join("");
+            break;
+        default:
+            string = text;
+            break;
+    }
+    if(!string) string = 0;
+    show.text(string);
 }
-function log(array, string){
-    if(!string) string = "current";
-    console.log(array, array.length - 1, string);
+function clearAll(){
+    savedInputs = [];
+    log(savedInputs, "saved input");
 }
 function clear(){
     currentInput = [];
     log(currentInput);
+}
+function log(array, string){
+    if(!string) string = "current";
+    if(!Array.isArray(array))
+        console.log(array);
+    console.log(array, lastInput(), string);
 }
 function backspace(backspc){
     console.log(currentInput[currentInput.length-1]);
@@ -68,42 +87,49 @@ function backspace(backspc){
     log(currentInput);
 }
 function calculate(equalSign){
+    // if (savedInputs[1] === "="){
+    //     var operatorToRepeat = currentInput.find(lastOperator);
+    //     var
+    // }
+
     currentInput.push("");
     addToInputArray(equalSign);
     concatInputTil(equalSign);
     log(currentInput);
     log(savedInputs, "savedInputs");
 
-    while(savedInputs.find(firstMDindex) != undefined){
-        var indexOfMD = savedInputs.find(firstMDindex);
-        var intermediateMD = do_math(savedInputs.splice(indexOfMD-1,3));
-        savedInputs.splice(indexOfMD-1,0,intermediateMD);
+    while(savedInputsHaveMD() != undefined){ //does */ first
+        var operatorMD = savedInputsHaveMD();
+        var indexOfMD = savedInputs.indexOf(operatorMD);
+        if (operatorMD = "/"){
+            if (savedInputs[indexOfMD+1] == 0) {
+                savedInputs = ["Cannot divide by Zero"];
+                // display("#output", "Cannot Divide by Zero");
+                return;
+            }
+        }
+        var numbersToCalculate = savedInputs.splice(indexOfMD-1,3);
+        var tempMD = do_math(numbersToCalculate);
+        savedInputs.splice(indexOfMD-1,0,tempMD);
         log(savedInputs,"savedInputs")
     }
-    while(!isNaN(savedInputs[2])){
-        var index = savedInputs.find(firstASindex);
-        var answer = do_math(savedInputs.splice(index-1,3));
-        savedInputs.splice(index-1,0,answer);
+
+    while(savedInputs.length > 2){ //does +- next
+        var operatorAS = savedInputs.find(firstASindex);
+        var answer = do_math(savedInputs.splice(operatorAS-1,3));
+        savedInputs.splice(operatorAS-1,0,answer);
         log(savedInputs,"savedInputs")
     }
+    lastButton = savedInputs.pop();
     log(currentInput);
     log(savedInputs, "saved");
 
-
-    // var basicBitchWay = function() {
-    //     currentInput.pop();
-    //     var tempString = currentInput.join("");
-    //     var tempArray = tempString.split("");
-    //     var operatorsIndex = tempArray.find(anyOperatorIndex);
-    //     var answerString = tempArray.join("");
-    //     var twoNums = answerString.split(operatorsIndex);
-    //     var answer = do_math(twoNums[0], operatorsIndex, twoNums[1]);
-    //     console.log(answer);
-    //     return answer;
-    // };
-    // basicBitchWay();
+    //remember not to divide by zero
 }
 function inputDecimal(decimal){
+    if (!currentInput.indexOf(".")){
+        currentInput.push("");
+    }
 }
 function isNaOperator(lastButton){
     switch(lastButton){
@@ -117,47 +143,47 @@ function isNaOperator(lastButton){
     }
 }
 function inputNumber(number){
-    if (currentInput[currentInput.length-1] === "=")
-        currentInput = [];
+    if (lastButton === "=")
+        savedInputs = [];
     if (isNaN(currentInput[currentInput.length]))
         currentInput.push("");
     addToInputArray(number);
     lastButton = number;
     log(currentInput);
 }
-function inputOperator(operator){
-    if (currentInput.length === 0)
-        return;
-    if (isNaOperator(lastButton)) { //add op, concat til op
+function inputOperator(operator) {
+    if (lastButton === "=") { //last button pressed was =
+        console.log("equal sign present, are we rolling over?");
+        lastButton = operator;
+        savedInputs[savedInputs.length] = operator;
+    }
+    // var checkLast = savedInputs[savedInputs.length - 1];
+    if (!isNaOperator(lastButton) && currentInput.length == 0) { //prevents successive op inputs
+        console.log("second operator pressed, overriding " + lastButton);
+        savedInputs[savedInputs.length - 1] = operator;
+    }
+    if (currentInput.length === 0) //prevents operator when nothing to compute
+        return; //this check needs to happen AFTER equal check
+    if (isNaOperator(lastButton)) { //if last button is NaOP, could be =, add op, concat til op
         console.log("first operator pressed");
         currentInput.push("");
         addToInputArray(operator);
         concatInputTil(operator);
-    } else { //was an operator.  should replace last value
-        console.log("operator already present.  replacing operators");
-        currentInput[currentInput.length-1] = operator;
+        lastButton = operator;
+        log(currentInput);
+        log(savedInputs, "savedInputs");
     }
-    lastButton = operator;
-    log(currentInput);
-    log(savedInputs, "savedInputs");
 }
-function concatInput(){
-    var tempString = currentInput.join("");
-
+function addToInputArray(keyPressed){
+    //currentInput[currentInput.length-1] = currentInput[currentInput.length-1] || 20
+    currentInput[currentInput.length-1] += keyPressed;
+    return currentInput[currentInput.length-1];
 }
 function concatInputTil(operator){
     var opIndex = currentInput.lastIndexOf(operator);
     var tempNumbersAsString = currentInput.splice(0,opIndex).join("");
     currentInput = [];
     savedInputs.push(tempNumbersAsString,operator);
-}
-function addToInputArray(keyPressed){
-    currentInput[currentInput.length-1] += keyPressed;
-    return currentInput[currentInput.length-1];
-}
-function addToAnswerArray(removedValues){
-    answerArray[answerArray.length-1] += removedValues;
-    return answerArray[answerArray.length-1];
 }
 function do_math(num1, operator, num2){
     if(Array.isArray(num1)){
@@ -197,34 +223,33 @@ function do_math(num1, operator, num2){
             return num1 * num2;
         case '=':
             console.log("woah an equals. figure logic later");
+            return "woah equals";
             break;
         default:
             console.log("Please specify: (a number, a number, an operator).");
-            return "Thank you.";
+            return "woah default";
+            break;
     }
 }
-function addToHistory(currentButt) {
-    inputHistory.push(currentButt);
-    return inputHistory[inputHistory.length - 1]
+var operatorLookup = ["+","-","*","/"];
+
+function savedInputsHaveMD(){
+    return savedInputs.find(firstMD);
 }
-function setLastInputTo(button){
-    if (inputHistory.length > 0) {
-        lastButton = inputHistory[inputHistory.length - 1];
-    } else {
-        lastButton = currentButton;
-    }
-    console.log(lastButton);
-    return lastButton;
-}
-function firstMDindex(inArray){
+function firstMD(inArray){
     return ["*","/"].indexOf(inArray) > -1;
 }
 function firstASindex(inArray){
     return ["+","-"].indexOf(inArray) > -1;
 }
-function anyOperatorIndex(inArray){
+function lastOperator(inArray){ //.find(lastOperator(inArray), returns +-*/
     return ["+","-","*","/"].indexOf(inArray) > -1;
 }
 function changeBoolean(pos){
     return pos = !pos;
+}
+function lastInput (){
+    return currentInput[currentInput.length-1] === undefined ?
+        savedInputs[savedInputs.length-1] :
+        currentInput[currentInput.length-1];
 }

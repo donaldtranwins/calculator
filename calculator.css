@@ -7,7 +7,7 @@ body {
     position: relative;
     background-color: pink;
     padding: 1em;
-    font-family: "Digital7", Courier, sans-serif;
+    font-family: "Digital7 Mono", Courier, sans-serif;
     font-size: 3em;
     box-shadow: .1em .1em deeppink;
     margin-top: .3em;
@@ -15,7 +15,7 @@ body {
 }
 .display > div {
     background-color: aliceblue;
-    padding: 1em;
+    padding-right: 1em;
     border: blue 1px solid;
     font-weight: bold;
     font-size: 1.4em;
@@ -24,6 +24,8 @@ body {
     font-size: 1.2em;
 }
 .input {
+    user-select: none;
+    font-family: "Digital7 Mono Italic", Courier, sans-serif;
 
 }
 .buttonrow {
