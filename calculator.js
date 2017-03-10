@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    applyClickHandlers();
+    applyHandlers();
 });
 
 var currentInput = [];
@@ -9,12 +9,28 @@ var numbersToCalculate = null;
 var positive = true;
 
 
-function applyClickHandlers(){
-    $('#calculator').on('click','.button',buttonPressed)
+function applyHandlers(){
+    $('#calculator').on('click','.button div',buttonClicked);
+    $(document).on('keypress',handleKeyPress)
 }
-
-function buttonPressed(){
-    var currentButton = $(this).text();
+var keys = [48, 46, 49, 50, 51, 52, 53, 54, 55, 56, 57, 47, 42, 45, 43, 45, 61, 47, 46, 13];
+function handleKeyPress(){
+    console.log(event.key);
+    keys.push(event.which);
+    switch(event.key){
+        case "*":
+            return "x";
+        case "−":
+            return "−";
+        default:
+            return event.key;
+    }
+    buttonClicked(keyToPassOn);
+}
+function buttonClicked(button){
+    if (typeof button === "object")
+        button = false;
+    var currentButton = button || $(this).text();
     switch(currentButton){
         case "AC":
             clearAll();
@@ -40,13 +56,10 @@ function buttonPressed(){
             display("#input","input");
             break;
         case "+":
-        case "-":
+        case "−":
+        case "x":
         case "/":
             inputOperator(currentButton);
-            display("#output","output");
-            break;
-        case "x":
-            inputOperator("*");
             display("#output","output");
             break;
         default:
@@ -174,8 +187,8 @@ function inputDecimal(decimal){
 function isNaOperator(lastButton){
     switch(lastButton){
         case "+":
-        case "-":
-        case "*":
+        case "−":
+        case "x":
         case "/":
             return false;
         default:
@@ -233,57 +246,41 @@ function concatInputTil(operator){
     currentInput = [];
     savedInputs.push(tempNumbersAsString,operator);
 }
-function do_math(num1, operator, num2){
+function do_math(num1, op, num2){
     if(Array.isArray(num1)){
+        console.log('array passed in');
         var number1 = parseFloat(num1[0]);
         var number2 = parseFloat(num1[2]);
-        switch(num1[1]){
-            case '+':
-                return number1 + number2;
-            case '-':
-                return number1 - number2;
-            case '/':
-                return number1 / number2;
-            case '*':
-            case 'x':
-            case 'X':
-                return number1 * number2;
-            case '=':
-                console.log("woah an equals. figure logic later");
-                break;
-            default:
-                console.log(num1, "error: num1 is in this format");
-                return "Thank you.";
-        }
+        var operator = num1[1];
+        } else {
+        console.log('num1,op,num2 passed in');
+        operator = op;
+        number1 = parseFloat(num1);
+        number2 = parseFloat(num2);
     }
-    num1 = parseFloat(num1);
-    num2 = parseFloat(num2);
     switch(operator){
         case '+':
-            return num1 + num2;
-        case '-':
-            return num1 - num2;
+            return number1 + number2;
+        case '−':
+            return number1 - number2;
         case '/':
-            return num1 / num2;
-        case '*':
+            return number1 / number2;
         case 'x':
-        case 'X':
-            return num1 * num2;
+            return number1 * number2;
         case '=':
-            console.log("woah an equals. figure logic later");
-            return "woah equals";
-            break;
+            console.log("wtf you messed up");
+            return "= in pos2?";
         default:
-            console.log("Please specify: (a number, a number, an operator).");
-            return "woah default";
-            break;
+            console.log("error: num1 = " + num1);
+            return "defaulted. bug";
     }
 }
+// objectLookup table
 // var operatorLookup = {
 //     "+": function(num1, num2){
 //         return num1 + num2;
 //     },
-//     "-": function(num1, num2){
+//     "−": function(num1, num2){
 //         return num1 - num2;
 //     },
 //     "/": function(num1, num2){
@@ -301,13 +298,13 @@ function savedInputsHaveMD(){
     return savedInputs.find(firstMD);
 }
 function firstMD(inArray){
-    return ["*","/"].indexOf(inArray) > -1;
+    return ["/","x"].indexOf(inArray) > -1;
 }
 function firstASindex(inArray){
-    return ["+","-"].indexOf(inArray) > -1;
+    return ["+","−"].indexOf(inArray) > -1;
 }
 function lastOperatorIn(array){ //.find(lastOperatorIn(array), returns +-*/
-    return ["+","-","*","/"].indexOf(array) > -1;
+    return ["+","−","x","/"].indexOf(array) > -1;
 }
 function changeBoolean(pos){
     return pos = !pos;
