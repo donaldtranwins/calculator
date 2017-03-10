@@ -5,7 +5,7 @@ $(document).ready(function () {
 var currentInput = [];
 var savedInputs = [];
 var lastButton = null;
-var currentButton = null;
+var numbersToCalculate = null;
 var positive = true;
 
 
@@ -14,17 +14,18 @@ function applyClickHandlers(){
 }
 
 function buttonPressed(){
-    currentButton = $(this).text();
+    var currentButton = $(this).text();
     switch(currentButton){
         case "AC":
-            clearAll(currentButton);
+            clearAll();
             display("#output","0");
         case "CE":
-            clear(currentButton);
+            clearEntry();
             display("#input","0");
             break;
         case "←":
-            backspace(currentButton);
+            backspace();
+            display("#input","input");
             break;
         case "=":
             calculate(currentButton);
@@ -32,16 +33,20 @@ function buttonPressed(){
             display("#input","input");
             break;
         case "±":
-            positive = changeBoolean(positive);
+            plusMinus();
             break;
         case ".":
             inputDecimal(currentButton);
+            display("#input","input");
             break;
         case "+":
         case "-":
-        case "*":
         case "/":
             inputOperator(currentButton);
+            display("#output","output");
+            break;
+        case "x":
+            inputOperator("*");
             display("#output","output");
             break;
         default:
@@ -68,11 +73,11 @@ function display(target, text){
 }
 function clearAll(){
     savedInputs = [];
-    log(savedInputs, "saved input");
+    log(savedInputs, "memory cleared");
 }
-function clear(){
+function clearEntry(){
     currentInput = [];
-    log(currentInput);
+    log(currentInput, "inputs cleared");
 }
 function log(array, string){
     if(!string) string = "current";
@@ -80,9 +85,12 @@ function log(array, string){
         console.log(array);
     console.log(array, lastInput(), string);
 }
-function backspace(backspc){
-    console.log(currentInput[currentInput.length-1]);
-    if(isNaOperator(currentInput[currentInput.length-1]))
+function plusMinus(){
+    changeBoolean(positive);
+}
+function backspace(){
+    console.log("backspace pressed",currentInput);
+    if(currentInput.length > 0)
         currentInput.pop();
     log(currentInput);
 }
@@ -91,7 +99,27 @@ function calculate(equalSign){
     //     var operatorToRepeat = currentInput.find(lastOperator);
     //     var
     // }
-
+    if (currentInput.length === 0) {
+        if (savedInputs.length === 1 && typeof currentInput[0] === "number"){
+            console.log("length is 1, typeof is number.  we want to repeat.");
+            numbersToCalculate[0] = currentInput[0];
+            answer = do_math(numbersToCalculate);
+            return answer;
+        }
+        console.log("not a number");
+        return; //prevents input if nothing is present
+    }
+    if (currentInput.length === 1) {
+        if (savedInputs.length === 0) { //matters for repeat
+            console.log("length is 1, not a number.  first input?");
+            savedInputs[0] = currentInput[0];
+            currentInput = [];
+            log(currentInput, "current");
+            log(savedInputs, "saved");
+            console.log("added to array as string to prevent repeat");
+            return;
+        }
+    }
     currentInput.push("");
     addToInputArray(equalSign);
     concatInputTil(equalSign);
@@ -108,28 +136,40 @@ function calculate(equalSign){
                 return;
             }
         }
-        var numbersToCalculate = savedInputs.splice(indexOfMD-1,3);
+        numbersToCalculate = savedInputs.splice(indexOfMD-1,3);
         var tempMD = do_math(numbersToCalculate);
         savedInputs.splice(indexOfMD-1,0,tempMD);
         log(savedInputs,"savedInputs")
     }
-
-    while(savedInputs.length > 2){ //does +- next
+    console.log("MD complete, now AS, ", savedInputs);
+    while(savedInputs.length > 3){ //does +- next
         var operatorAS = savedInputs.find(firstASindex);
-        var answer = do_math(savedInputs.splice(operatorAS-1,3));
+        numbersToCalculate = savedInputs.splice(operatorAS-1,3);
+        var answer = do_math(numbersToCalculate);
         savedInputs.splice(operatorAS-1,0,answer);
         log(savedInputs,"savedInputs")
     }
+    console.log("all math complete, ", savedInputs);
+    if (savedInputs.length === 3){
+        log(savedInputs, "we should rollover now, length is 2(+1)")
+    }
+
+    if (savedInputs.length === 2){
+        log(savedInputs, "length is 2. we done?");
+        savedInputs[0] = parseFloat(savedInputs[0]);
+    }
     lastButton = savedInputs.pop();
     log(currentInput);
-    log(savedInputs, "saved");
+    log(savedInputs, "saved inputs");
 
     //remember not to divide by zero
 }
 function inputDecimal(decimal){
-    if (!currentInput.indexOf(".")){
-        currentInput.push("");
-    }
+    if (currentInput.indexOf(".") > -1)
+        return;
+    currentInput.push("");
+    addToInputArray(decimal);
+    log(currentInput);
 }
 function isNaOperator(lastButton){
     switch(lastButton){
@@ -143,7 +183,9 @@ function isNaOperator(lastButton){
     }
 }
 function inputNumber(number){
-    if (lastButton === "=")
+    // if (lastButton === "=")
+    //     savedInputs = [];
+    if (typeof savedInputs[0] === "number")
         savedInputs = [];
     if (isNaN(currentInput[currentInput.length]))
         currentInput.push("");
@@ -152,18 +194,24 @@ function inputNumber(number){
     log(currentInput);
 }
 function inputOperator(operator) {
-    if (lastButton === "=") { //last button pressed was =
-        console.log("equal sign present, are we rolling over?");
-        lastButton = operator;
-        savedInputs[savedInputs.length] = operator;
+    console.log(operator + " clicked");
+    if (currentInput.length === 0){
+        log(currentInput, "no current inputs");
+        if (!isNaOperator(lastButton)) { //prevents successive op inputs
+            console.log("...but second operator pressed, overriding " + lastButton);
+            savedInputs[savedInputs.length - 1] = operator;
+            log(savedInputs, "saved inputs");
+        }
+        if (lastButton === "=") { //last button pressed was =
+            console.log("equal sign present, need to roll over but need to write the function..");
+            lastButton = operator;
+            savedInputs[savedInputs.length] = operator;
+            log(savedInputs, "saved inputs");
+        }
+        console.log("we good");
+        return;
     }
     // var checkLast = savedInputs[savedInputs.length - 1];
-    if (!isNaOperator(lastButton) && currentInput.length == 0) { //prevents successive op inputs
-        console.log("second operator pressed, overriding " + lastButton);
-        savedInputs[savedInputs.length - 1] = operator;
-    }
-    if (currentInput.length === 0) //prevents operator when nothing to compute
-        return; //this check needs to happen AFTER equal check
     if (isNaOperator(lastButton)) { //if last button is NaOP, could be =, add op, concat til op
         console.log("first operator pressed");
         currentInput.push("");
@@ -231,7 +279,23 @@ function do_math(num1, operator, num2){
             break;
     }
 }
-var operatorLookup = ["+","-","*","/"];
+// var operatorLookup = {
+//     "+": function(num1, num2){
+//         return num1 + num2;
+//     },
+//     "-": function(num1, num2){
+//         return num1 - num2;
+//     },
+//     "/": function(num1, num2){
+//         return num1 / num2;
+//     },
+//     "x": function(num1, num2){
+//         return num1 * num2;
+//     },
+//     "X": this.x,
+//     "*": this['x']
+// };
+//return operatorLookup[operator](num1, num2);
 
 function savedInputsHaveMD(){
     return savedInputs.find(firstMD);
@@ -242,8 +306,8 @@ function firstMD(inArray){
 function firstASindex(inArray){
     return ["+","-"].indexOf(inArray) > -1;
 }
-function lastOperator(inArray){ //.find(lastOperator(inArray), returns +-*/
-    return ["+","-","*","/"].indexOf(inArray) > -1;
+function lastOperatorIn(array){ //.find(lastOperatorIn(array), returns +-*/
+    return ["+","-","*","/"].indexOf(array) > -1;
 }
 function changeBoolean(pos){
     return pos = !pos;
