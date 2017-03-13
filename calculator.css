@@ -73,3 +73,8 @@ div.number:hover {
     font-family: "Digital7 Mono Italic";
     src: url("font/digital-7 (mono italic).ttf")
 }
+@media screen and (orientation: portrait){
+    .container {
+        margin: auto;
+    }
+}
