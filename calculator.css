@@ -7,23 +7,27 @@ body {
     position: relative;
     background-color: pink;
     padding: 1em;
-    font-family: "Digital7", Courier, sans-serif;
+    font-family: "Digital7 Mono", Courier, sans-serif;
     font-size: 3em;
     box-shadow: .1em .1em deeppink;
     margin-top: .3em;
+    min-width: 300px;
+    user-select: none;
 }
 .display > div {
     background-color: aliceblue;
-    padding: 1em;
+    padding-right: 1rem;
     border: blue 1px solid;
     font-weight: bold;
+    word-wrap: break-word;
+}
+#output {
+    font-size: 1.96em;
+}
+#input {
     font-size: 1.4em;
-}
-.output {
-    font-size: 1.2em;
-}
-.input {
-
+    user-select: none;
+    font-family: "Digital7 Mono Italic", Courier, sans-serif;
 }
 .buttonrow {
     margin-top: .3em;
@@ -39,25 +43,27 @@ body {
     box-shadow: .05em .1em #758f9c;
 }
 .button > div:hover {
-    background-color: #9cc1ce;
-    transition-duration: 35ms;
+    background-color: #71cecb;
+    transition-duration: 400ms;
+    border: 1px solid #5bce85;
 }
-.button > div:active {
+.button > div:active,
+.keyboard {
     box-shadow: -.05em -.1em pink;
     transform: translateX(.05em) translateY(.1em);
+    transition-duration: 900ms;
+    transition-timing-function: cubic-bezier(0,1,0,1)
 }
-.number > div { background-color: lightskyblue }
-@font-face {
-    font-family: "Overwatch";
-    src: url("http://us.battle.net/forums/static/fonts/bignoodletoo/bignoodletoo.woff") format('woff');
+div.number {
+    background-color: lightskyblue;
 }
-@font-face {
-    font-family: "Digital7";
-    src: url("font/digital-7.ttf")
+div.number:hover {
+    background-color: #5bce85;
+    border: 1px solid lightblue;
 }
-@font-face {
-    font-family: "Digital7 Italic";
-    src: url("font/digital-7 (italic).ttf")
+.col-sm-6, .col-xs-12, .col-xs-3 {
+    padding-right: .3em;
+    padding-left: .3em;
 }
 @font-face {
     font-family: "Digital7 Mono";
