@@ -14,9 +14,9 @@ function applyHandlers(){
     $(document).on('keydown',validateKeydown);
 }
 function validateKeydown() {
-    if (event.which === 8)
+    if (event.which === 8) //backspace
         buttonClicked("←");
-    if (event.which === 27)
+    if (event.which === 27) //escape
         buttonClicked("AC");
 }
 // var keys = {
@@ -94,7 +94,9 @@ function display(target, text){
             string = text;
             break;
     }
-    if(!string) string = 0;
+    if(!string){
+        string = 0;
+    }
     show.text(string);
 }
 function clearAll(){
@@ -111,67 +113,74 @@ function log(array, string){
         console.log(array);
     console.log(array, lastInput(), string);
 }
-function plusMinus(){
-    changeBoolean(positive);
-}
 function backspace(){
     console.log("backspace pressed",currentInput);
-    if(currentInput.length > 0)
+    if(currentInput.length > 0) {
         currentInput.pop();
+    }
+    if(currentInput.length === 1 && currentInput[0] === "0") {
+        currentInput.pop();
+    }
     log(currentInput);
 }
-function calculate(equalSign){
+function calculate(equalSign, potentialPartialOperand){
+    console.log("= pressed =======================");
     if (currentInput.length === 0) {
-        console.log("nothing in our current input! special cases");
-        // if (savedInputs.length === 1 && typeof currentInput[0] === "number"){
-        if (!isNaOperator(lastButton)) {
-            log(savedInputs, "last button was operator.  rollover boy!");
-            savedInputs[2] = savedInputs[0];
-            numbersToCalculate = savedInputs.splice(0,3);
-            savedInputs[0] = do_math(numbersToCalculate);
-            log(savedInputs, "Rollover ed our savedinputs");
-            return;
-        }
-        console.log("no current input. but savedinput[0] is NaNumber");
-        if (typeof savedInputs[0] === "number"){
-            console.log("length is 1, typeof is number.  we want to repeat last operation.");
+        console.log("current input empty! special cases!");
+//        if (!isNaOperator(lastButton)) { //1+=
+            if (savedInputs.length % 2 === 0){
+                console.log("last button was operator.  partial operand");
+                var partialOperand = savedInputs.pop();
+                currentInput[currentInput.length] = savedInputs.pop();
+                log(savedInputs, "took out last operator...");
+                log(currentInput, "...added to current input");
+                console.log("lets rewind time a bit.");
+                calculate(equalSign, partialOperand);
+                console.log("operation rollover complete");
+                return;
+            }
+//            savedInputs[2] = savedInputs[0];
+//            numbersToCalculate = savedInputs.slice(0);
+//            savedInputs = [];
+//            savedInputs[0] = do_math(numbersToCalculate);
+//            lastButton = equalSign;
+//            log(savedInputs, "partial operand");
+//            return;
+//        }
+        if (typeof savedInputs[0] === "number"){ //1+1==
+            console.log("repeating; previous calculation was found.");
+            console.log("last operation was " + numbersToCalculate.join(""));
             numbersToCalculate[0] = savedInputs[0];
+            console.log("but we doing " + numbersToCalculate.join(""));
             savedInputs = [];
             savedInputs[0] = do_math(numbersToCalculate);
             log(savedInputs, "Repeated our savedinputs");
-            return savedInputs;
-        }
-        return; //prevents input if nothing is present
-    }
-    if (currentInput.length === 1) {
-        if (savedInputs.length === 0) { //matters for repeat
-            console.log("length is 1, not a number.  first input?");
-            savedInputs[0] = currentInput[0];
-            currentInput = [];
-            lastButton = equalSign;
-            log(currentInput, "current");
-            log(savedInputs, "saved");
-            console.log("added to array as string to prevent repeat");
             return;
         }
-        // if (savedInputs.length === 2) { //matters for partial operand
-        //     console.log("operation rollover? partial operand? one of the two.");
-        //     savedInputs[2] = savedInputs[0];
-        // }
+        console.log("no previous calculation. ending function.");
+        return; //prevents input if nothing is present
     }
-    currentInput.push("");
+    if (savedInputs.length === 0 && !potentialPartialOperand) { // 1=
+        console.log("length is 1, not a number.  first input?");
+        savedInputs[0] = currentInput[0];
+        currentInput = [];
+        lastButton = equalSign;
+        log(currentInput, "current");
+        log(savedInputs, "saved");
+        console.log("added to array as string to prevent future repeat");
+        return;
+    }
     addToInputArray(equalSign);
     concatInputTil(equalSign);
     log(currentInput);
     log(savedInputs, "savedInputs");
 
     while(savedInputsHaveMD() != undefined){ //does */ first
-        var operatorMD = savedInputsHaveMD();
-        var indexOfMD = savedInputs.indexOf(operatorMD);
-        if (operatorMD = " / "){
+        var operatorIsMD = savedInputsHaveMD();
+        var indexOfMD = savedInputs.indexOf(operatorIsMD);
+        if (operatorIsMD = " / "){
             if (savedInputs[indexOfMD+1] == 0) {
                 savedInputs = ["Cannot divide by Zero"];
-                // display("#output", "Cannot Divide by Zero");
                 return;
             }
         }
@@ -182,90 +191,100 @@ function calculate(equalSign){
     }
     log(savedInputs, "MD complete, now AS");
     while(savedInputs.length > 3){ //does +- next
-        var operatorAS = savedInputs.find(firstASindex);
-        numbersToCalculate = savedInputs.splice(operatorAS-1,3);
+        var operatorIsAS = savedInputs.find(firstASindex);
+        numbersToCalculate = savedInputs.splice(operatorIsAS-1,3);
         var answer = do_math(numbersToCalculate);
-        savedInputs.splice(operatorAS-1,0,answer);
+        savedInputs.splice(operatorIsAS-1,0,answer);
         log(savedInputs,"savedInputs")
     }
     log(savedInputs, "all math complete");
-    if (savedInputs.length === 3){
-        log(savedInputs, "we should rollover now, length is 2(+1)")
-    }
-    if (savedInputs.length === 2){
-        log(savedInputs, "length is 2. we done?");
+    if (savedInputs[1] === "="){
+        log(savedInputs, "equals sign is second item.  we're done?");
+        lastButton = savedInputs.pop();
+        if (potentialPartialOperand){
+            console.log("not done, operation rollover");
+            savedInputs.push(potentialPartialOperand);
+            //added below
+            savedInputs[2] = savedInputs[0];
+            numbersToCalculate = savedInputs.slice(0);
+            savedInputs = [];
+            savedInputs[0] = do_math(numbersToCalculate);
+            // return;
+            //added above
+//            calculate(equalSign);
+        }
         savedInputs[0] = parseFloat(savedInputs[0]);
+        log(currentInput);
+        log(savedInputs, "saved inputs");
     }
-    lastButton = savedInputs.pop();
-    log(currentInput);
-    log(savedInputs, "saved inputs");
-
-    //remember not to divide by zero
 }
-function inputDecimal(decimal){
-    if (currentInput.indexOf(".") > -1)
+function inputDecimal(decimal) {
+    if (currentInput.indexOf(".") > -1) // prevents decimals being added if it already exists
         return;
-    currentInput.push("");
+    if (currentInput[0] === undefined) {
+        addToInputArray("0");
+    }
     addToInputArray(decimal);
     log(currentInput);
 }
-function isNaOperator(lastButton){
-    switch(lastButton){
-        case " + ":
-        case " − ":
-        case " x ":
-        case " / ":
-            return false;
-        default:
-            return true;
-    }
-}
 function inputNumber(number){
     if (lastButton === "=") {
-        console.log("last button was = so preventing concatenation by wiping saved array.");
+        console.log("last button was =, so preventing concatenation by wiping saved array");
         savedInputs = [];
     }
-    if (typeof savedInputs[0] === "number" && savedInputs.length !== 2)
-        savedInputs = [];
-    if (isNaN(currentInput[currentInput.length]))
-        currentInput.push("");
+    if (currentInput[0] === "0" && currentInput.length === 1 && number === "0") //prevents leading zeroes
+        return;
     addToInputArray(number);
     lastButton = number;
     log(currentInput);
 }
 function inputOperator(operator) {
-    console.log(operator + " clicked");
+    if (savedInputs[0] === "Cannot divide by Zero"){
+        savedInputs = [];
+    }
+    console.log(operator + " clicked           " + operator + "       " + operator);
     if (currentInput.length === 0){
         log(currentInput, "no current inputs");
-        if (lastButton === "=") { //last button pressed was =
-            console.log("...equal sign present. partial operand or rollover?");
-            lastButton = operator;
-            savedInputs[savedInputs.length] = operator;
-            log(savedInputs, "saved inputs");
-            return;
-        }
-        if (savedInputs.length === 1){
-            console.log("..but we have a saved input? lets use that. as a string.");
-            currentInput[0] = savedInputs.pop();
-            inputOperator(operator);
-            return;
-        }
-        if (!isNaOperator(lastButton)) { //prevents successive op inputs
+        if (!isNaOperator(lastButton)) { //1+-
             console.log("...but second operator pressed. overriding " + lastButton);
             savedInputs[savedInputs.length - 1] = operator;
             log(savedInputs, "saved inputs");
         }
+        if (lastButton === "=") { // 1+1=+
+            console.log("...equal sign present. partial operand or rollover?");
+            lastButton = operator;
+            savedInputs[savedInputs.length] = operator;
+            log(savedInputs, "saved inputs");
+            // return;
+        }
+        // if (savedInputs.length === 1){ //deprecated?
+        //     if (typeof savedInputs[0] === "string") {
+        //         console.log("..but we have a saved input? lets use that. as a string.");
+        //         currentInput[0] = savedInputs.pop();
+        //         inputOperator(operator);
+        //         return;
+        //     } else {
+        //         log(currentInput, "potential partial operand. readding back operator");
+        //         savedInputs.push(operator);
+        //         lastButton = operator;
+        //         log(savedInputs, "operator added");
+        //         return;
+        //     }
+        // }
         console.log("we good");
         return;
     }
-    // var checkLast = savedInputs[savedInputs.length - 1];
     if (isNaOperator(lastButton)) { //if last button is NaOP, could be =, add op, concat til op
         console.log("first operator pressed");
-        if (currentInput[currentInput.length-1] === ".") {
-            currentInput.pop();
+        var decimal = currentInput.indexOf(".");
+        if (decimal > -1) {
+            while (currentInput[currentInput.length - 1] === "0") {
+                currentInput.pop();
+            }
+            if (currentInput[currentInput.length-1] === ".") {
+                currentInput.pop();
+            }
         }
-            // ASKJDH do no leading zeros and ending zeros
-        currentInput.push("");
         addToInputArray(operator);
         concatInputTil(operator);
         lastButton = operator;
@@ -274,11 +293,11 @@ function inputOperator(operator) {
     }
 }
 function addToInputArray(keyPressed){
+    currentInput.push("");
     currentInput[currentInput.length-1] += keyPressed;
     return currentInput[currentInput.length-1];
 }
 function concatInputTil(operator){
-    log(currentInput, "running new concat until");
     var tempNumbersAsString = currentInput.slice(0,-1).join("");
     currentInput = [];
     savedInputs.push(tempNumbersAsString,operator);
@@ -312,25 +331,27 @@ function do_math(num1, op, num2){
             return "defaulted. bug";
     }
 }
-// objectLookup table
-// var operatorLookup = {
-//     "+": function(num1, num2){
-//         return num1 + num2;
-//     },
-//     "−": function(num1, num2){
-//         return num1 - num2;
-//     },
-//     "/": function(num1, num2){
-//         return num1 / num2;
-//     },
-//     "x": function(num1, num2){
-//         return num1 * num2;
-//     },
-//     "X": this.x,
-//     "*": this['x']
-// };
-//return operatorLookup[operator](num1, num2);
-
+function isNaOperator(lastButton){
+    switch(lastButton){
+        case " + ":
+        case " − ":
+        case " x ":
+        case " / ":
+            return false;
+        default:
+            return true;
+    }
+}
+function changeSign(pos){
+    return pos = !pos;
+}
+function plusMinus(){
+    positive = changeSign(positive);
+    toggleNegative();
+}
+function toggleNegative(){
+    currentInput.unshift("-")
+}
 function savedInputsHaveMD(){
     return savedInputs.find(firstMD);
 }
@@ -342,9 +363,6 @@ function firstASindex(inArray){
 }
 function lastOperatorIn(array){ //.find(lastOperatorIn(array), returns +-*/
     return [" + "," − "," x "," / "].indexOf(array) > -1;
-}
-function changeBoolean(pos){
-    return pos = !pos;
 }
 function lastInput (){
     return currentInput[currentInput.length-1] === undefined ?
