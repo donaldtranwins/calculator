@@ -63,6 +63,7 @@ function buttonClicked(button){
             break;
         case "±":
             plusMinus();
+            display("#input","input");
             break;
         case ".":
             inputDecimal(currentButton);
@@ -118,7 +119,7 @@ function backspace(){
     if(currentInput.length > 0) {
         currentInput.pop();
     }
-    if(currentInput.length === 1 && currentInput[0] === "0") {
+    if(currentInput.length === 1 && currentInput[0] === "0" || currentInput[0] === "-") {
         currentInput.pop();
     }
     log(currentInput);
@@ -128,17 +129,17 @@ function calculate(equalSign, potentialPartialOperand){
     if (currentInput.length === 0) {
         console.log("current input empty! special cases!");
 //        if (!isNaOperator(lastButton)) { //1+=
-            if (savedInputs.length % 2 === 0){
-                console.log("last button was operator.  partial operand");
-                var partialOperand = savedInputs.pop();
-                currentInput[currentInput.length] = savedInputs.pop();
-                log(savedInputs, "took out last operator...");
-                log(currentInput, "...added to current input");
-                console.log("lets rewind time a bit.");
-                calculate(equalSign, partialOperand);
-                console.log("operation rollover complete");
-                return;
-            }
+        if (savedInputs.length % 2 === 0){
+            console.log("last button was operator.  partial operand");
+            var partialOperand = savedInputs.pop();
+            currentInput[currentInput.length] = savedInputs.pop();
+            log(savedInputs, "took out last operator...");
+            log(currentInput, "...added to current input");
+            console.log("lets rewind time a bit.");
+            calculate(equalSign, partialOperand);
+            console.log("operation rollover complete");
+            return;
+        }
 //            savedInputs[2] = savedInputs[0];
 //            numbersToCalculate = savedInputs.slice(0);
 //            savedInputs = [];
@@ -162,7 +163,7 @@ function calculate(equalSign, potentialPartialOperand){
     }
     if (savedInputs.length === 0 && !potentialPartialOperand) { // 1=
         console.log("length is 1, not a number.  first input?");
-        savedInputs[0] = currentInput[0];
+        savedInputs[0] = currentInput.slice(0).join("");
         currentInput = [];
         lastButton = equalSign;
         log(currentInput, "current");
@@ -234,6 +235,8 @@ function inputNumber(number){
     }
     if (currentInput[0] === "0" && currentInput.length === 1 && number === "0") //prevents leading zeroes
         return;
+    if (currentInput[0] === "-" && currentInput.length === 2)
+        backspace();
     addToInputArray(number);
     lastButton = number;
     log(currentInput);
@@ -308,7 +311,7 @@ function do_math(num1, op, num2){
         var number1 = parseFloat(num1[0]);
         var number2 = parseFloat(num1[2]);
         var operator = num1[1];
-        } else {
+    } else {
         console.log('num1,op,num2 passed in');
         operator = op;
         number1 = parseFloat(num1);
@@ -350,7 +353,15 @@ function plusMinus(){
     toggleNegative();
 }
 function toggleNegative(){
-    currentInput.unshift("-")
+    if (currentInput[0] !== "-"){
+        if (currentInput[0] === undefined) {
+            addToInputArray("0");
+        }
+        currentInput.unshift("-");
+    } else {
+        currentInput.shift();
+    }
+    log(currentInput);
 }
 function savedInputsHaveMD(){
     return savedInputs.find(firstMD);
