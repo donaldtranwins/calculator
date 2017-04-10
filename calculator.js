@@ -6,7 +6,6 @@ var currentInput = [];
 var savedInputs = [];
 var lastButton = null;
 var numbersToCalculate = null;
-var computations = [null];
 
 /** *********
  ** ** Handlers
