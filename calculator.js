@@ -116,7 +116,7 @@ function inputOperator(operator) {
         savedInputs = [];
     }
     if (currentInput.length === 0){
-        if (isAnOperator(lastButton)) { // Changing Operation Keys aka 1+-*2
+        if ([" / "," x "," + "," − "].indexOf(lastButton)) { // Changing Operation Keys aka 1+-*2
             savedInputs[savedInputs.length - 1] = operator;
         }
         if (lastButton === "=") { // Allows for Operation Rollover/Partial Operand
@@ -156,21 +156,50 @@ function calculate(equalSign, potentialPartialOperand){
     addToInputArray(equalSign);
     concatInputTil(equalSign);
     /** *********
-     ** ** ORDER OF OPERATIONS BEGINS HERE
+     ** ** ORDER OF OPERATIONS (aka PEMDAS) BEGINS HERE
      ** ********* **/
-    while(savedInputsHaveOperators() != undefined){ // Order: /*+-
-        var operatorPresent = savedInputsHaveOperators();
-        var indexOfOperator = savedInputs.indexOf(operatorPresent);
-        if (operatorPresent = " / "){ // Prevents Division by Zero
-            if (savedInputs[indexOfOperator+1] == 0) {
-                savedInputs = ["Cannot divide by Zero"];
-                return;
-            }
-        }
-        numbersToCalculate = savedInputs.splice(indexOfOperator-1,3);
-        var answer = do_math(numbersToCalculate);
-        savedInputs.splice(indexOfOperator-1,0,answer);
+    compute_OOP_with(a_MD_operator); //Computes MD of PEMDAS
+    compute_OOP_with(an_AS_operator); //Computes AS of PEMDAS
+    function a_MD_operator(inArray){
+        return [" / "," x "].indexOf(inArray) > -1;
     }
+    function an_AS_operator(inArray){
+        return [" + "," − "].indexOf(inArray) > -1;
+    }
+    function compute_OOP_with(given_operator){
+        var operator;
+        while(operator = savedInputs.find(given_operator)){
+            var indexOfOperator = savedInputs.indexOf(operator);
+            if (operator = " / "){ // Prevents Division by Zero
+                if (savedInputs[indexOfOperator+1] == 0) {
+                    savedInputs = ["Cannot divide by Zero"];
+                    return;
+                }
+            }
+            numbersToCalculate = savedInputs.splice(indexOfOperator-1,3);
+            var answer = do_math(numbersToCalculate);
+            savedInputs.splice(indexOfOperator-1,0,answer);
+        }
+    }
+    // while(operatorIsMD = savedInputs.find(an_MD_operator)){ // Computes Multiplication and Division
+    //     var indexOfMD = savedInputs.indexOf(operatorIsMD);
+    //     if (operatorIsMD = " / "){ // Prevents Division by Zero
+    //         if (savedInputs[indexOfMD+1] == 0) {
+    //             savedInputs = ["Cannot divide by Zero"];
+    //             return;
+    //         }
+    //     }
+    //     numbersToCalculate = savedInputs.splice(indexOfMD-1,3);
+    //     var answer = do_math(numbersToCalculate);
+    //     savedInputs.splice(indexOfMD-1,0,answer);
+    // }
+    // while(savedInputs.length > 3){ //Computes Addition and Subtraction
+    //     var operatorIsAS = savedInputs.find(firstASindex);
+    //     var indexOfAS = savedInputs.indexOf(operatorIsAS);
+    //     numbersToCalculate = savedInputs.splice(indexOfAS-1,3);
+    //     answer = do_math(numbersToCalculate);
+    //     savedInputs.splice(indexOfAS-1,0,answer);
+    // }
     /** *********
      ** ** ORDER OF OPERATIONS ENDS HERE
      ** ********* **/
@@ -262,10 +291,4 @@ function concatInputTil(operator){
     var numbersAsOneString = currentInput.slice(0,-1).join("");
     currentInput = [];
     savedInputs.push(numbersAsOneString,operator);
-}
-function isAnOperator(input){ //.find(isAnOperator(array) returns /*-+ as string.
-    return [" / "," x "," + "," − "].indexOf(input) > -1;
-}
-function savedInputsHaveOperators(){
-    return savedInputs.find(isAnOperator);
 }
