@@ -116,12 +116,12 @@ function inputOperator(operator) {
         savedInputs = [];
     }
     if (currentInput.length === 0){
-        if ([" / "," x "," + "," − "].indexOf(lastButton)) { // Changing Operation Keys aka 1+-*2
-            savedInputs[savedInputs.length - 1] = operator;
-        }
         if (lastButton === "=") { // Allows for Operation Rollover/Partial Operand
             lastButton = operator;
             savedInputs[savedInputs.length] = operator;
+        }
+        if ([" / "," x "," + "," − "].indexOf(lastButton)) { // Changing Operation Keys aka 1+-*2
+            savedInputs[savedInputs.length - 1] = operator;
         }
         return;
     }
