@@ -70,11 +70,11 @@ div.number:hover {
 }
 @font-face {
     font-family: "Digital7 Mono";
-    src: url("calcfiles/digital-7 (mono).ttf")
+    src: url("digital-7 (mono).ttf")
 }
 @font-face {
     font-family: "Digital7 Mono Italic";
-    src: url("calcfiles/digital-7 (mono italic).ttf")
+    src: url("digital-7 (mono italic).ttf")
 }
 @media screen and (orientation: portrait){
     .container {
