@@ -158,7 +158,9 @@ function calculate(equalSign, potentialPartialOperand){
     /** *********
      ** ** ORDER OF OPERATIONS (aka PEMDAS) BEGINS HERE
      ** ********* **/
-    compute_OOP_with(a_MD_operator); //Computes MD of PEMDAS
+    if (!compute_OOP_with(a_MD_operator)) { //Computes MD of PEMDAS
+        return; // if the user divides by zero, this function escapes immediately.
+    }
     compute_OOP_with(an_AS_operator); //Computes AS of PEMDAS
     function a_MD_operator(inArray){
         return [" / "," x "].indexOf(inArray) > -1;
@@ -173,13 +175,14 @@ function calculate(equalSign, potentialPartialOperand){
             if (operator = " / "){ // Prevents Division by Zero
                 if (savedInputs[indexOfOperator+1] == 0) {
                     savedInputs = ["Cannot divide by Zero"];
-                    return;
+                    return false;
                 }
             }
             numbersToCalculate = savedInputs.splice(indexOfOperator-1,3);
             var answer = do_math(numbersToCalculate);
             savedInputs.splice(indexOfOperator-1,0,answer);
         }
+        return true;
     }
     /** *********
      ** ** ORDER OF OPERATIONS ENDS HERE
