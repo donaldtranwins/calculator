@@ -198,18 +198,22 @@ function calculate(equalSign, potentialPartialOperand){
     savedInputs[0] = parseFloat(savedInputs[0]);
 }
 function do_math(array){
+    var num1length = array[0].toString().length;
+    var num2length = array[2].toString().length;
+    var mostSigFigs = num1length > num2length ? num1length : num2length;
     var number1 = parseFloat(array[0]);
     var number2 = parseFloat(array[2]);
     var operator = array[1];
     switch(operator){
         case ' + ':
-            return number1 + number2;
+            return +(number1 + number2).toFixed(mostSigFigs);
+            // this fixes javascripts issue with 0.1 + 0.2 = 0.3000000000000004
         case ' − ':
-            return number1 - number2;
+            return +(number1 - number2).toFixed(mostSigFigs);
         case ' / ':
-            return number1 / number2;
+            return +(number1 / number2).toFixed(mostSigFigs);
         case ' x ':
-            return number1 * number2;
+            return +(number1 * number2).toFixed(mostSigFigs);
         default:
             return "Calculator Error";
     }
